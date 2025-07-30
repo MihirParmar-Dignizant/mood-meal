@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "629499868631",
+    "project_id": "mood-meal-pm011",
+    "storage_bucket": "mood-meal-pm011.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:629499868631:android:cbdf41177da88b71a8c792",
+        "android_client_info": {
+          "package_name": "com.example.moodmealdemoPM.mood_meal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "629499868631-mh3a74mpb27hd7dhb83g4gvi88fkcddd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.moodmealdemoPM.mood_meal",
+            "certificate_hash": "57e705cd0536034d16fa2e621f24bb65d4e23d0b"
+          }
+        },
+        {
+          "client_id": "629499868631-p48i300uhk45bgk2gpv52s06fmbuf175.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQ2Ko2TQLzOu4hoS4vMZKEGBBxpnZkV4Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "629499868631-p48i300uhk45bgk2gpv52s06fmbuf175.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "629499868631-umdliob6tuql1khpqs74v0tn3ooli4s9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dignizant.moodmealdemo.moodMeal"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

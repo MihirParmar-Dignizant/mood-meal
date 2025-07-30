@@ -4,6 +4,7 @@ import 'package:mood_meal/constant/app_colors.dart';
 import 'package:mood_meal/router/routes.dart';
 
 import '../constant/app_image.dart';
+import '../services/local_db/shared_pref_data.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -21,13 +22,21 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _navigateAfterDelay() async {
     await Future.delayed(const Duration(seconds: 3));
-    // Navigator.pushReplacementNamed(context, '/signIn');
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      Routes.signIn,
-          (route) => false, // removes all previous routes
-    );
+    bool isLoggedIn = await LocalUserPrefs.isUserLoggedIn();
 
+    if (isLoggedIn) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        Routes.mainHome,
+        (route) => false, // removes all previous routes
+      );
+    } else {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        Routes.signIn,
+        (route) => false, // removes all previous routes
+      );
+    }
   }
 
   @override
@@ -41,8 +50,10 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Center(child: Image.asset(Assets.moodmeal, height: 39.h,width: 175.w,)),
-            SizedBox(height: 5.h,),
+            Center(
+              child: Image.asset(Assets.moodmeal, height: 39.h, width: 175.w),
+            ),
+            SizedBox(height: 5.h),
             Text(
               'Your Mood. Your Meal. Simplified',
               style: TextStyle(

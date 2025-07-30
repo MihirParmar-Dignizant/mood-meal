@@ -7,5 +7,6 @@ class Routes {
   static const String forgotPassword = "/forgotPassword";
   static const String checkMail = "/checkMail";
   static const String resetPassword = "/resetPassword";
-
+  static const String mainHome = "/mainHome";
+  static const String success = "/success";
 }

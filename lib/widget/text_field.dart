@@ -32,12 +32,39 @@ class _CustomTextFieldState extends State<CustomTextField> {
     });
   }
 
+  /// ✅ Automatic validation based on label
+  String? _autoValidator(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return '${widget.label} is required';
+    }
+
+    if (widget.label.toLowerCase().contains('email')) {
+      final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+      if (!emailRegex.hasMatch(value.trim())) {
+        return 'Enter a valid email address';
+      }
+    }
+
+    if (widget.label.toLowerCase().contains('password')) {
+      if (value.length < 8) return 'Password must be at least 8 characters';
+      if (!RegExp(r'[A-Z]').hasMatch(value))
+        return 'Include an uppercase letter';
+      if (!RegExp(r'[a-z]').hasMatch(value))
+        return 'Include a lowercase letter';
+      if (!RegExp(r'[0-9]').hasMatch(value)) return 'Include a number';
+      if (!RegExp(r'[!@#\$&*~]').hasMatch(value))
+        return 'Include a special character';
+    }
+
+    return null; // ✅ Valid input
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        /// Label text
+        /// Label
         Align(
           alignment: Alignment.centerLeft,
           child: Text(
@@ -50,25 +77,18 @@ class _CustomTextFieldState extends State<CustomTextField> {
         ),
         const SizedBox(height: 6),
 
-        /// Text field
+        /// TextFormField
         TextFormField(
-          validator: (value) {
-            if (value!.isEmpty) {
-              return "${widget.label} is Empty";
-            } else {
-              return null;
-            }
-          },
           controller: widget.controller,
           obscureText: widget.isPassword ? _obscure : false,
           style: TextStyle(color: widget.textColor),
+          // validator: _autoValidator,
           decoration: InputDecoration(
             hintText: widget.hint,
             hintStyle: TextStyle(
               color: AppColors.secondary400,
               fontWeight: FontWeight.w400,
             ),
-
             suffixIcon:
                 widget.isPassword
                     ? IconButton(
@@ -79,7 +99,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       onPressed: _toggleVisibility,
                     )
                     : null,
-
             focusedErrorBorder: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.red, width: 1),
               borderRadius: BorderRadius.circular(10),

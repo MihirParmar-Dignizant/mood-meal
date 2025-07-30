@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mood_meal/constant/app_colors.dart';
 import 'package:mood_meal/router/routes.dart';
 import 'package:mood_meal/widget/app_bar.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../services/authentication.dart';
 import '../../widget/build_button.dart';
 import '../../widget/or_divider.dart';
 import '../../widget/text_field.dart';
@@ -19,6 +21,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final AuthService authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -88,8 +91,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               label: 'Name',
                               hint: 'Enter your Name',
                               controller: nameController,
-                              borderColor: Colors.grey.shade300,
-                              textColor: Colors.black,
                             ),
 
                             const SizedBox(height: 10),
@@ -99,8 +100,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               label: 'Email Address',
                               hint: 'Enter your email address',
                               controller: emailController,
-                              borderColor: Colors.grey.shade300,
-                              textColor: Colors.black,
                             ),
 
                             const SizedBox(height: 10),
@@ -111,22 +110,64 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               hint: 'Enter your password',
                               isPassword: true,
                               controller: passwordController,
-                              borderColor: Colors.grey.shade300,
-                              textColor: Colors.black,
                             ),
 
-                            const SizedBox(height: 25),
+                            const SizedBox(height: 24),
 
                             // Sign Up Button
                             buildButton(
                               text: "Sign Up",
                               backgroundColor: AppColors.primary1000,
                               textColor: Colors.white,
-                              onPressed: () {
-                                if (formKey.currentState!.validate()) {
-                                  // Proceed with sign up
-                                  print("Form valid");
-                                }
+                              onPressed: () async {
+                                Navigator.pushNamed(
+                                  context,
+                                  Routes.forgotPassword,
+                                  // (route) => false,
+                                );
+
+                                //
+                                // if (!formKey.currentState!.validate()) {
+                                //   showCustomSnackBar(
+                                //     context,
+                                //     message:
+                                //         "Please fill all fields correctly.",
+                                //     icon: Icons.warning_amber_outlined,
+                                //     backgroundColor: AppColors.red,
+                                //   );
+                                //   return;
+                                // }
+                                //
+                                // formKey.currentState!.save();
+                                //
+                                // final error = await authService.signUp(
+                                //   fullName: nameController.text.trim(),
+                                //   email: emailController.text.trim(),
+                                //   password: passwordController.text.trim(),
+                                // );
+                                //
+                                // if (!context.mounted) return;
+                                //
+                                // if (error == null) {
+                                //   showCustomSnackBar(
+                                //     context,
+                                //     message: "Login Successful!",
+                                //     icon: Icons.check_circle_outline,
+                                //     backgroundColor: AppColors.green,
+                                //   );
+                                //   Navigator.pushNamedAndRemoveUntil(
+                                //     context,
+                                //     Routes.mainHome,
+                                //         (route) => false,
+                                //   );
+                                // } else {
+                                //   showCustomSnackBar(
+                                //     context,
+                                //     message: error,
+                                //     icon: Icons.error_outline,
+                                //     backgroundColor: AppColors.red,
+                                //   );
+                                // }
                               },
                             ),
                           ],
@@ -134,7 +175,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
 
                       const SizedBox(height: 24),
-                      const OrDivider(text: "Or sign in with"),
+                      const OrDivider(text: "Or signup with"),
                       const SizedBox(height: 16),
 
                       buildButton(

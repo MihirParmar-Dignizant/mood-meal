@@ -7,4 +7,6 @@ class Assets{
 
   // SVG
   static const String baseUrlSvg = "assets/svg/";
+  static const String emailSvg = "${baseUrlSvg}email.svg";
+
 }
