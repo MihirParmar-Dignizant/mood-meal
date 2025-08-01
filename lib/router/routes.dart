@@ -9,4 +9,5 @@ class Routes {
   static const String resetPassword = "/resetPassword";
   static const String mainHome = "/mainHome";
   static const String success = "/success";
+  static const String dietary = "/dietary";
 }

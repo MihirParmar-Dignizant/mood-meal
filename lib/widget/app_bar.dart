@@ -8,6 +8,7 @@ class CustomTopAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
   final String? label;
   final VoidCallback? onBack;
+  final Color? backgroundColor;
 
   const CustomTopAppBar({
     super.key,
@@ -15,33 +16,34 @@ class CustomTopAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.label,
     this.showBackButton = false,
     this.onBack,
+    this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: AppColors.primary100,
+      backgroundColor: backgroundColor ?? AppColors.primary100,
       elevation: 0,
-      centerTitle: isImage, // Center only if it's the logo
-      title: isImage
-          ? Image.asset(
-        Assets.moodmeal,
-        height: 32.h,
-        width: 145.w,
-        fit: BoxFit.contain,
-      )
-          : Text(
-        label ?? '',
-        style: TextStyle(
-          fontSize: 18.sp,
-          color: Colors.black,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+      centerTitle: isImage,
+      title:
+          isImage
+              ? Image.asset(
+                Assets.moodmeal,
+                height: 32.h,
+                width: 145.w,
+                fit: BoxFit.contain,
+              )
+              : Text(
+                label ?? '',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
     );
   }
 
   @override
   Size get preferredSize => Size.fromHeight(56.h);
-
 }

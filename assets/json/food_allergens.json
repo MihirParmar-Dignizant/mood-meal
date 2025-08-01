@@ -1,0 +1,34 @@
+{
+  "allergensData": [
+    {
+      "name": "Nuts",
+      "image": "assets/img/nuts.png",
+      "isSelected": false
+    },
+    {
+      "name": "Dairy",
+      "image": "assets/img/dairy.png",
+      "isSelected": false
+    },
+    {
+      "name": "Gluten",
+      "image": "assets/img/gluten.png",
+      "isSelected": false
+    },
+    {
+      "name": "Soybeans",
+      "image": "assets/img/soyabeans.png",
+      "isSelected": false
+    },
+    {
+      "name": "Eggs",
+      "image": "assets/img/eggs.png",
+      "isSelected": false
+    },
+    {
+      "name": "Fish",
+      "image": "assets/img/fish.png",
+      "isSelected": false
+    }
+  ]
+}

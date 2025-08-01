@@ -4,7 +4,6 @@ import 'package:mood_meal/constant/app_colors.dart';
 import 'package:mood_meal/router/routes.dart';
 import 'package:mood_meal/widget/app_bar.dart';
 
-import '../../services/authentication.dart';
 import '../../widget/build_button.dart';
 import '../../widget/or_divider.dart';
 import '../../widget/text_field.dart';
@@ -21,7 +20,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final AuthService authService = AuthService();
+
+  // final AuthService authService = AuthService();
 
   @override
   Widget build(BuildContext context) {

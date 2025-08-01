@@ -86,8 +86,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               hint: 'Enter your new password',
                               isPassword: true,
                               controller: passwordController,
-                              borderColor: Colors.grey.shade300,
-                              textColor: Colors.black,
                             ),
                             const SizedBox(height: 10),
                             CustomTextField(
@@ -95,8 +93,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               hint: 'Enter your confirm new password',
                               isPassword: true,
                               controller: confirmPasswordController,
-                              borderColor: Colors.grey.shade300,
-                              textColor: Colors.black,
                             ),
                             const SizedBox(height: 24),
 
@@ -106,10 +102,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               textColor: Colors.white,
                               onPressed: () {
                                 Navigator.pushNamed(context, Routes.success);
-                                bool isValid = formKey.currentState!.validate();
-                                if (!isValid) {
-                                  formKey.currentState!.validate();
-                                }
+                                // bool isValid = formKey.currentState!.validate();
+                                // if (!isValid) {
+                                //   formKey.currentState!.validate();
+                                // }
                               },
                             ),
                           ],

@@ -1,0 +1,44 @@
+{
+  "dietData": [
+    {
+      "name": "Vegetarian",
+      "iconUrl": "assets/svg/Vegetarian.svg"
+    },
+    {
+      "name": "Non-Vegetarian",
+      "iconUrl": "assets/svg/NonVegetarian.svg"
+    },
+    {
+      "name": "Balanced",
+      "iconUrl": "assets/svg/Balanced.svg"
+    },
+    {
+      "name": "Keto",
+      "iconUrl": "assets/svg/Keto.svg"
+    },
+    {
+      "name": "Vegan",
+      "iconUrl": "assets/svg/Vegan.svg"
+    },
+    {
+      "name": "Low Carb",
+      "iconUrl": "assets/svg/LowCarb.svg"
+    },
+    {
+      "name": "Paleo",
+      "iconUrl": "assets/svg/Paleo.svg"
+    },
+    {
+      "name": "Zone",
+      "iconUrl": "assets/svg/Balanced.svg"
+    },
+    {
+      "name": "Alkaline",
+      "iconUrl": "assets/svg/Alkaline.svg"
+    },
+    {
+      "name": "Gluten-Free",
+      "iconUrl": "assets/svg/GlutenFree.svg"
+    }
+  ]
+}

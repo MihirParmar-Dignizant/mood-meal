@@ -1,0 +1,64 @@
+{
+  "emotionsData": [
+    {
+      "id": 1,
+      "name": "Sad",
+      "svgPath": "assets/svg/sad.svg"
+    },
+    {
+      "id": 2,
+      "name": "In Love",
+      "svgPath": "assets/svg/love.svg"
+    },
+    {
+      "id": 3,
+      "name": "Happy",
+      "svgPath": "assets/svg/happy.svg"
+    },
+    {
+      "id": 4,
+      "name": "Excited",
+      "svgPath": "assets/svg/excited.svg"
+    },
+    {
+      "id": 5,
+      "name": "Shocked",
+      "svgPath": "assets/svg/shocked.svg"
+    },
+    {
+      "id": 6,
+      "name": "Calm",
+      "svgPath": "assets/svg/calm.svg"
+    },
+    {
+      "id": 7,
+      "name": "Disappoint",
+      "svgPath": "assets/svg/disappoint.svg"
+    },
+    {
+      "id": 8,
+      "name": "Confused",
+      "svgPath": "assets/svg/confused.svg"
+    },
+    {
+      "id": 9,
+      "name": "Naughty",
+      "svgPath": "assets/svg/naughty.svg"
+    },
+    {
+      "id": 10,
+      "name": "Hopeless",
+      "svgPath": "assets/svg/hopeless.svg"
+    },
+    {
+      "id": 11,
+      "name": "Angry",
+      "svgPath": "assets/svg/angry.svg"
+    },
+    {
+      "id": 12,
+      "name": "Frustrated",
+      "svgPath": "assets/svg/frustrated.svg"
+    }
+  ]
+}

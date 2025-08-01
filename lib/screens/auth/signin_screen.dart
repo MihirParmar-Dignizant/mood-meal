@@ -4,7 +4,6 @@ import 'package:mood_meal/constant/app_colors.dart';
 import 'package:mood_meal/widget/app_bar.dart';
 
 import '../../router/routes.dart';
-import '../../services/authentication.dart';
 import '../../widget/build_button.dart';
 import '../../widget/or_divider.dart';
 import '../../widget/text_field.dart';
@@ -20,7 +19,8 @@ class _SignInScreenState extends State<SignInScreen> {
   final formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final AuthService authService = AuthService();
+
+  // final AuthService authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -119,10 +119,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               backgroundColor: AppColors.primary1000,
                               textColor: Colors.white,
                               onPressed: () async {
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  Routes.signUp,
-                                );
+                                Navigator.pushNamed(context, Routes.dietary);
 
                                 // if (!formKey.currentState!.validate()) {
                                 //   showCustomSnackBar(

@@ -6,6 +6,7 @@ import 'package:mood_meal/screens/auth/reset_password_screen.dart';
 import 'package:mood_meal/screens/auth/signin_screen.dart';
 import 'package:mood_meal/screens/auth/successful_message.dart';
 import 'package:mood_meal/screens/mainHome_screen.dart';
+import 'package:mood_meal/screens/onboarding/dietary_prefrence.dart';
 import 'package:mood_meal/screens/splash_screen.dart';
 
 import '../screens/auth/signup_screen.dart';
@@ -20,5 +21,6 @@ class AppRouter {
     Routes.resetPassword: (context) => const ResetPasswordScreen(),
     Routes.mainHome: (context) => const MainHomeScreen(),
     Routes.success: (context) => const SuccessScreen(),
+    Routes.dietary: (context) => const DietaryPrefScreen(),
   };
 }
