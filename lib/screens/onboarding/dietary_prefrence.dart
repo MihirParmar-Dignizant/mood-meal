@@ -3,6 +3,7 @@ import 'package:mood_meal/constant/app_colors.dart';
 import 'package:mood_meal/screens/onboarding/page/diet_type_page.dart';
 import 'package:mood_meal/screens/onboarding/page/food_allergie_page.dart';
 import 'package:mood_meal/screens/onboarding/page/mood_goal_page.dart';
+import 'package:mood_meal/screens/onboarding/page/personal_info_activity.dart';
 import 'package:mood_meal/screens/onboarding/page/personal_info_page.dart';
 
 import '../../widget/app_bar.dart';
@@ -23,6 +24,7 @@ class _DietaryPrefScreenState extends State<DietaryPrefScreen> {
     'Dietary Preferences',
     'Mood Goal',
     'Personal Information',
+    'Personal Information',
   ];
 
   late final List<Widget> _pages;
@@ -35,6 +37,7 @@ class _DietaryPrefScreenState extends State<DietaryPrefScreen> {
       FoodAllergiesPage(onNext: nextPage),
       MoodGoalPage(onNext: nextPage),
       PersonalInfoPage(onNext: nextPage),
+      PersonalInfoActivityPage(onNext: nextPage),
     ];
 
     _pageController.addListener(() {

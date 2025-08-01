@@ -10,6 +10,9 @@ class CustomTextField extends StatefulWidget {
   final Color borderColor;
   final Color textColor;
   final TextEditingController? controller;
+  final VoidCallback? onTapOverride;
+  final Icon? suffixOverrideIcon;
+  final bool? isNumber;
 
   const CustomTextField({
     super.key,
@@ -21,6 +24,9 @@ class CustomTextField extends StatefulWidget {
     this.borderColor = const Color(0xFFCCCCCC),
     this.textColor = Colors.black,
     this.controller,
+    this.onTapOverride,
+    this.suffixOverrideIcon,
+    this.isNumber,
   });
 
   @override
@@ -114,13 +120,16 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
     if (widget.label.toLowerCase().contains('password')) {
       if (value.length < 8) return 'Password must be at least 8 characters';
-      if (!RegExp(r'[A-Z]').hasMatch(value))
+      if (!RegExp(r'[A-Z]').hasMatch(value)) {
         return 'Include an uppercase letter';
-      if (!RegExp(r'[a-z]').hasMatch(value))
+      }
+      if (!RegExp(r'[a-z]').hasMatch(value)) {
         return 'Include a lowercase letter';
+      }
       if (!RegExp(r'[0-9]').hasMatch(value)) return 'Include a number';
-      if (!RegExp(r'[!@#\$&*~]').hasMatch(value))
+      if (!RegExp(r'[!@#\$&*~]').hasMatch(value)) {
         return 'Include a special character';
+      }
     }
 
     return null;
@@ -152,16 +161,21 @@ class _CustomTextFieldState extends State<CustomTextField> {
           ),
           const SizedBox(height: 6),
 
-          /// Text Field or Dropdown
+          /// Text Field
           TextFormField(
             controller: controller,
-            readOnly: widget.isDropdown,
+            keyboardType:
+                (widget.isNumber ?? false)
+                    ? TextInputType.number
+                    : TextInputType.text,
+            readOnly: widget.isDropdown || widget.onTapOverride != null,
             focusNode: _focusNode,
             obscureText: widget.isPassword ? _obscure : false,
             validator: _autoValidator,
             style: TextStyle(color: widget.textColor),
             onTap:
-                widget.isDropdown
+                widget.onTapOverride ??
+                (widget.isDropdown
                     ? () {
                       if (_overlayEntry == null) {
                         _showDropdownMenu();
@@ -169,7 +183,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                         _removeDropdown();
                       }
                     }
-                    : null,
+                    : null),
             decoration: InputDecoration(
               hintText: widget.hint,
               hintStyle: TextStyle(
@@ -190,7 +204,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
                         Icons.arrow_drop_down_outlined,
                         color: AppColors.secondary200,
                       )
+                      : widget.onTapOverride != null
+                      ? widget.suffixOverrideIcon ??
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: AppColors.secondary200,
+                          )
                       : null,
+
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: widget.borderColor, width: 1.5),
                 borderRadius: BorderRadius.circular(10),

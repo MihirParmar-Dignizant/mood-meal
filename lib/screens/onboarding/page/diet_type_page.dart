@@ -18,6 +18,7 @@ class DietTypePage extends StatefulWidget {
 
 class _DietTypePageState extends State<DietTypePage> {
   List<DietOption> dietOptions = [];
+  final ageController = TextEditingController();
   bool isLoading = true;
 
   @override
@@ -101,6 +102,7 @@ class _DietTypePageState extends State<DietTypePage> {
                           color: AppColors.secondary400,
                         ),
                       ),
+                      const SizedBox(height: 24),
                       const SizedBox(height: 24),
 
                       Expanded(

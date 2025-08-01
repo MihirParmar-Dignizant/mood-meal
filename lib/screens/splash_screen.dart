@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mood_meal/constant/app_colors.dart';
-import 'package:mood_meal/router/routes.dart';
 
 import '../constant/app_image.dart';
+import '../router/routes.dart';
 import '../services/local_db/shared_pref_data.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -41,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
+    // final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: AppColors.primary100,

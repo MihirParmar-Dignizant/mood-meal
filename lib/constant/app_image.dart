@@ -19,4 +19,5 @@ class Assets {
   static const String vegSvg = "${baseUrlSvg}Vegetarian.svg";
   static const String checkedSvg = "${baseUrlSvg}checked.svg";
   static const String uncheckedSvg = "${baseUrlSvg}unchecked.svg";
+  static const String waveSvg = "${baseUrlSvg}wave.svg";
 }

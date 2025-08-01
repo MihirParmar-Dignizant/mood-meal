@@ -14,13 +14,12 @@ class SuccessScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Lottie.network(
-              'https://lottie.host/6e5c93e4-fc1c-46df-85b0-597b0b65091c/0K2Yq1wF7O.json',
-              // Replace with actual URL
-              width: 150,
-              height: 150,
-              repeat: false,
+              'https://assets10.lottiefiles.com/packages/lf20_jbrw3hcz.json',
+              height: 300,
+              repeat: true,
+              animate: true,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             const Text(
               'Password Changed !',
               style: TextStyle(
