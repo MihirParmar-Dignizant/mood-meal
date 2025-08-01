@@ -157,7 +157,6 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
                                       _pageController.initialPage.toDouble();
                                 }
 
-                                // Calculate the scale based on the distance from center
                                 final distance = (index - currentPage).abs();
                                 final scale =
                                     1.0 -
