@@ -3,10 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mood_meal/constant/app_colors.dart';
 import 'package:mood_meal/widget/app_bar.dart';
 
-import '../../router/routes.dart';
-import '../../widget/build_button.dart';
-import '../../widget/or_divider.dart';
-import '../../widget/text_field.dart';
+import '../../../../router/routes.dart';
+import '../../../../widget/build_button.dart';
+import '../../../../widget/or_divider.dart';
+import '../../../../widget/text_field.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});

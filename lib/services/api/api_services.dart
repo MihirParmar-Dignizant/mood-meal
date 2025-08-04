@@ -1,51 +1,36 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-
-import '../model/allergen_model.dart';
-import '../model/diet_model.dart';
-import '../model/emotion_model.dart';
+import 'package:mood_meal/constant/api_constant.dart';
 
 class ApiService {
-  // Diet Options API
-  static Future<List<DietOption>> fetchDietOptions() async {
-    final response = await http.get(
-      Uri.parse('https://your-api.com/diet-options'),
-    );
-
-    if (response.statusCode == 200) {
-      List jsonList = jsonDecode(response.body);
-      return jsonList.map((json) => DietOption.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load Diet Options');
-    }
+  // Builds the full URL for an endpoint.
+  Uri _buildUrl(String endpoint) {
+    return Uri.parse("${ApiConstant.baseUrl}$endpoint");
   }
 
-  // Allergen Options API
-  static Future<List<Allergen>> fetchAllergens() async {
-    final response = await http.get(
-      Uri.parse('https://your-api.com/allergens'),
-    );
+  // Signs up the user using provided data.
+  // Returns `null` if successful, otherwise returns an error message.
+  Future<String?> signUp(Map<String, String> data) async {
+    try {
+      final uri = _buildUrl(ApiConstant.signUp);
 
-    if (response.statusCode == 200) {
-      List jsonList = jsonDecode(response.body);
-      return jsonList.map((json) => Allergen.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load Allergen Options');
-    }
-  }
+      final response = await http.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(data),
+      );
 
-  // Fetch Emotion List from API (GET)
-  static Future<List<Emotion>> fetchEmotions() async {
-    final response = await http.get(Uri.parse("https://your-api.com/emotions"));
+      final Map<String, dynamic> responseBody = json.decode(response.body);
 
-    if (response.statusCode == 200) {
-      List jsonList = jsonDecode(
-        response.body,
-      ); // direct array, not wrapped in "emotionsData"
-      return jsonList.map((json) => Emotion.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load Emotion Options');
+      if (response.statusCode == 201 && responseBody["success"] == true) {
+        // TODO: Save tokens or user info if needed
+        return null;
+      } else {
+        return responseBody['message'] ?? "Unknown error occurred";
+      }
+    } catch (e) {
+      return "An error occurred: $e";
     }
   }
 }

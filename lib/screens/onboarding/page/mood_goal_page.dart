@@ -26,7 +26,13 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
   @override
   void initState() {
     super.initState();
-    _loadEmotions();
+    // _loadEmotions();
+    fetchEmotionData();
+  }
+
+  fetchEmotionData() async {
+    // emotions = await ApiService.fetchEmotions();
+    debugPrint(emotions.toString());
   }
 
   Future<void> _loadEmotions() async {

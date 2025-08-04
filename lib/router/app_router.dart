@@ -3,13 +3,13 @@ import 'package:mood_meal/router/routes.dart';
 import 'package:mood_meal/screens/auth/email_send_screen.dart';
 import 'package:mood_meal/screens/auth/forgot_password_screen.dart';
 import 'package:mood_meal/screens/auth/reset_password_screen.dart';
-import 'package:mood_meal/screens/auth/signin_screen.dart';
+import 'package:mood_meal/screens/auth/signIn/view/signin_screen.dart';
 import 'package:mood_meal/screens/auth/successful_message.dart';
 import 'package:mood_meal/screens/mainHome_screen.dart';
 import 'package:mood_meal/screens/onboarding/dietary_prefrence.dart';
 import 'package:mood_meal/screens/splash_screen.dart';
 
-import '../screens/auth/signup_screen.dart';
+import '../screens/auth/signUp/view/signup_screen.dart';
 
 class AppRouter {
   static Map<String, WidgetBuilder> appRoutes = {
