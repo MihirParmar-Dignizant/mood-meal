@@ -237,10 +237,10 @@ Future<void> showCustomPickerBottomSheet({
                                               index >= secondItems.length)
                                             return null;
                                           return AnimatedBuilder(
-                                            animation: secondController!,
+                                            animation: secondController,
                                             builder: (context, child) {
                                               final selected =
-                                                  secondController!
+                                                  secondController
                                                       .selectedItem ==
                                                   index;
                                               return Center(

@@ -4,8 +4,10 @@ import 'package:mood_meal/constant/app_colors.dart';
 import 'package:mood_meal/widget/app_bar.dart';
 
 import '../../../../router/routes.dart';
+import '../../../../services/authentication.dart';
 import '../../../../widget/build_button.dart';
 import '../../../../widget/or_divider.dart';
+import '../../../../widget/snackBar.dart';
 import '../../../../widget/text_field.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -118,66 +120,118 @@ class _SignInScreenState extends State<SignInScreen> {
                               text: "Sign In",
                               backgroundColor: AppColors.primary1000,
                               textColor: Colors.white,
-                              onPressed: () async {
-                                Navigator.pushNamed(context, Routes.dietary);
 
-                                // if (!formKey.currentState!.validate()) {
-                                //   showCustomSnackBar(
-                                //     context,
-                                //     message:
-                                //         "Please fill all fields correctly.",
-                                //     icon: Icons.warning_amber_outlined,
-                                //     backgroundColor: AppColors.red,
-                                //   );
-                                //   return;
-                                // }
-                                //
-                                // formKey.currentState!.save();
-                                //
-                                // try {
-                                //   final error = await authService.login(
-                                //     email: emailController.text.trim(),
-                                //     password: passwordController.text.trim(),
-                                //   );
-                                //
-                                //   if (!context.mounted) return;
-                                //
-                                //   if (error == null) {
-                                //     showCustomSnackBar(
-                                //       context,
-                                //       message: "Login Successful!",
-                                //       icon: Icons.check_circle_outline,
-                                //       backgroundColor: AppColors.green,
-                                //     );
-                                //
-                                //     await Future.delayed(
-                                //       const Duration(milliseconds: 800),
-                                //     );
-                                //
-                                //     Navigator.pushReplacementNamed(
-                                //       context,
-                                //       Routes.mainHome,
-                                //     );
-                                //   } else {
-                                //     showCustomSnackBar(
-                                //       context,
-                                //       message: error,
-                                //       icon: Icons.error_outline,
-                                //       backgroundColor: AppColors.red,
-                                //     );
-                                //   }
-                                // } catch (e) {
-                                //   if (!context.mounted) return;
-                                //
-                                //   showCustomSnackBar(
-                                //     context,
-                                //     message:
-                                //         "Unexpected error occurred. Please try again.",
-                                //     icon: Icons.error_outline,
-                                //     backgroundColor: Colors.red.shade700,
-                                //   );
-                                // }
+                              onPressed: () async {
+                                if (!formKey.currentState!.validate()) {
+                                  showCustomSnackBar(
+                                    context,
+                                    message:
+                                        "Please fill all fields correctly.",
+                                    icon: Icons.warning_amber_outlined,
+                                    backgroundColor: AppColors.red,
+                                  );
+                                  return;
+                                }
+
+                                final email = emailController.text.trim();
+                                final password = passwordController.text.trim();
+
+                                final response = await AuthService.signIn(
+                                  email: email,
+                                  password: password,
+                                );
+
+                                if (!context.mounted) return;
+
+                                if (response != null) {
+                                  // Save token locally using shared_preferences or secure_storage if needed
+                                  // await storage.write(key: "token", value: response.token);
+
+                                  showCustomSnackBar(
+                                    context,
+                                    message: "Login Successful!",
+                                    icon: Icons.check_circle_outline,
+                                    backgroundColor: AppColors.green,
+                                  );
+
+                                  await Future.delayed(
+                                    const Duration(milliseconds: 800),
+                                  );
+
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    Routes.dietary,
+                                  );
+                                } else {
+                                  showCustomSnackBar(
+                                    context,
+                                    message: "Invalid email or password.",
+                                    icon: Icons.error_outline,
+                                    backgroundColor: AppColors.red,
+                                  );
+                                }
                               },
+
+                              // onPressed: () async {
+                              // Navigator.pushNamed(context, Routes.dietary);
+
+                              // if (!formKey.currentState!.validate()) {
+                              //   showCustomSnackBar(
+                              //     context,
+                              //     message:
+                              //         "Please fill all fields correctly.",
+                              //     icon: Icons.warning_amber_outlined,
+                              //     backgroundColor: AppColors.red,
+                              //   );
+                              //   return;
+                              // }
+                              //
+                              // formKey.currentState!.save();
+                              //
+                              // try {
+                              //   final error = await authService.login(
+                              //     email: emailController.text.trim(),
+                              //     password: passwordController.text.trim(),
+                              //   );
+                              //
+                              //   if (!context.mounted) return;
+                              //
+                              //   if (error == null) {
+                              //     showCustomSnackBar(
+                              //       context,
+                              //       message: "Login Successful!",
+                              //       icon: Icons.check_circle_outline,
+                              //       backgroundColor: AppColors.green,
+                              //     );
+                              //
+                              //     await Future.delayed(
+                              //       const Duration(milliseconds: 800),
+                              //     );
+                              //
+                              //     Navigator.pushReplacementNamed(
+                              //       context,
+                              //       Routes.mainHome,
+                              //     );
+                              //   } else {
+                              //     showCustomSnackBar(
+                              //       context,
+                              //       message: error,
+                              //       icon: Icons.error_outline,
+                              //       backgroundColor: AppColors.red,
+                              //     );
+                              //   }
+                              // } catch (e) {
+                              //   if (!context.mounted) return;
+                              //
+                              //   showCustomSnackBar(
+                              //     context,
+                              //     message:
+                              //         "Unexpected error occurred. Please try again.",
+                              //     icon: Icons.error_outline,
+                              //     backgroundColor: Colors.red.shade700,
+                              //   );
+                              // }
+                              // },
                             ),
                           ],
                         ),
@@ -193,11 +247,33 @@ class _SignInScreenState extends State<SignInScreen> {
                       text: "Continue With Google",
                       isGoogle: true,
                       backgroundColor: AppColors.primary100,
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(
-                          context,
-                          Routes.mainHome,
-                        );
+                      onPressed: () async {
+                        final response = await AuthService.signInWithGoogle();
+
+                        if (!context.mounted) return;
+                        if (response != null) {
+                          showCustomSnackBar(
+                            context,
+                            message: "Google Sign-In Successful!",
+                            icon: Icons.check_circle_outline,
+                            backgroundColor: AppColors.green,
+                          );
+
+                          await Future.delayed(
+                            const Duration(milliseconds: 800),
+                          );
+                          Navigator.pushReplacementNamed(
+                            context,
+                            Routes.mainHome,
+                          );
+                        } else {
+                          showCustomSnackBar(
+                            context,
+                            message: "Google Sign-In failed.",
+                            icon: Icons.error_outline,
+                            backgroundColor: AppColors.red,
+                          );
+                        }
                       },
                     ),
 

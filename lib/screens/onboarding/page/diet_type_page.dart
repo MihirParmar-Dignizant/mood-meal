@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 import '../../../constant/app_colors.dart';
-import '../../../services/jsonService/local_service.dart';
-import '../../../services/model/diet_model.dart';
+import '../../../services/api/api_services.dart';
+import '../../../services/model/onboarding/diet_model.dart';
 import '../../../widget/build_button.dart';
 import '../../../widget/snackBar.dart';
 
@@ -18,7 +17,7 @@ class DietTypePage extends StatefulWidget {
 
 class _DietTypePageState extends State<DietTypePage> {
   List<DietOption> dietOptions = [];
-  final ageController = TextEditingController();
+  Set<String> selectedIds = {};
   bool isLoading = true;
 
   @override
@@ -29,31 +28,54 @@ class _DietTypePageState extends State<DietTypePage> {
 
   Future<void> loadOptions() async {
     try {
-      final data = await LocalService.fetchLocalDietOptions();
-
-      // Use this fetching from API:
-      // final data = await ApiService.fetchDietOptions();
+      final data = await ApiService.fetchDietOptions();
+      final storedIds =
+          await ApiService.getSavedDietSelections(); // your API call to load previously saved IDs
 
       setState(() {
-        dietOptions = data;
+        dietOptions =
+            data.map((option) {
+              return DietOption(
+                id: option.id,
+                name: option.name,
+                iconUrl: option.iconUrl,
+                isSelected: storedIds.contains(option.id),
+              );
+            }).toList();
+
+        selectedIds = storedIds.toSet();
         isLoading = false;
       });
     } catch (e) {
       debugPrint("Error loading diet options: $e");
+      if (context.mounted) {
+        showCustomSnackBar(
+          context,
+          message: "Failed to load diet options",
+          icon: Icons.error_outline,
+          backgroundColor: Colors.red,
+        );
+      }
       setState(() => isLoading = false);
     }
   }
 
-  void toggleSelection(int index) {
+  void toggleSelection(String id) {
     setState(() {
-      dietOptions[index].isSelected = !dietOptions[index].isSelected;
+      if (selectedIds.contains(id)) {
+        selectedIds.remove(id);
+      } else {
+        selectedIds.add(id);
+      }
+
+      for (var option in dietOptions) {
+        option.isSelected = selectedIds.contains(option.id);
+      }
     });
   }
 
-  void handleNext() {
-    final selected = dietOptions.any((item) => item.isSelected);
-
-    if (!selected) {
+  void handleNext() async {
+    if (selectedIds.isEmpty) {
       showCustomSnackBar(
         context,
         message: "Please select at least one diet type",
@@ -63,8 +85,20 @@ class _DietTypePageState extends State<DietTypePage> {
       return;
     }
 
-    // Callback to parent
-    widget.onNext?.call();
+    try {
+      await ApiService.saveSelectedDiets(selectedIds.toList());
+      widget.onNext?.call();
+    } catch (e) {
+      debugPrint("Error saving diet: $e");
+      if (context.mounted) {
+        showCustomSnackBar(
+          context,
+          message: "Failed to save selection",
+          icon: Icons.error_outline,
+          backgroundColor: Colors.red,
+        );
+      }
+    }
   }
 
   @override
@@ -84,7 +118,6 @@ class _DietTypePageState extends State<DietTypePage> {
                   : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header
                       Text(
                         "Choose Your Perfect Diet Type",
                         style: TextStyle(
@@ -103,70 +136,73 @@ class _DietTypePageState extends State<DietTypePage> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      const SizedBox(height: 24),
-
                       Expanded(
                         child: SingleChildScrollView(
                           child: Wrap(
                             spacing: 12,
                             runSpacing: 12,
-                            children: List.generate(dietOptions.length, (
-                              index,
-                            ) {
-                              final item = dietOptions[index];
-
-                              return ChoiceChip(
-                                labelPadding: const EdgeInsets.symmetric(
-                                  vertical: 4,
-                                  horizontal: 10,
-                                ),
-                                avatar: SvgPicture.asset(
-                                  item.iconUrl,
-                                  width: 20,
-                                  height: 20,
-                                  placeholderBuilder:
-                                      (BuildContext context) => const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                AppColors.primary1000,
-                                              ),
-                                        ),
+                            children:
+                                dietOptions.map((item) {
+                                  return ChoiceChip(
+                                    labelPadding: const EdgeInsets.symmetric(
+                                      vertical: 4,
+                                      horizontal: 10,
+                                    ),
+                                    avatar: Image.network(
+                                      item.iconUrl,
+                                      width: 20,
+                                      height: 20,
+                                      loadingBuilder: (
+                                        context,
+                                        child,
+                                        progress,
+                                      ) {
+                                        if (progress == null) return child;
+                                        return const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  AppColors.primary1000,
+                                                ),
+                                          ),
+                                        );
+                                      },
+                                      errorBuilder:
+                                          (_, __, ___) => const Icon(
+                                            Icons.broken_image,
+                                            size: 20,
+                                          ),
+                                    ),
+                                    label: Text(item.name),
+                                    selected: item.isSelected,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      side: BorderSide(
+                                        color:
+                                            item.isSelected
+                                                ? AppColors.primary1000
+                                                : AppColors.secondary200,
+                                        width: 1,
                                       ),
-                                ),
-
-                                label: Text(item.name),
-                                selected: item.isSelected,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  side: BorderSide(
-                                    color:
-                                        item.isSelected
-                                            ? AppColors.primary1000
-                                            : AppColors.secondary200,
-                                    width: 1,
-                                  ),
-                                ),
-                                selectedColor: AppColors.primary100,
-                                backgroundColor: AppColors.white,
-                                showCheckmark: false,
-                                labelStyle: TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.secondary900,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                onSelected: (_) => toggleSelection(index),
-                              );
-                            }),
+                                    ),
+                                    selectedColor: AppColors.primary100,
+                                    backgroundColor: AppColors.white,
+                                    showCheckmark: false,
+                                    labelStyle: TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.secondary900,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    onSelected: (_) => toggleSelection(item.id),
+                                  );
+                                }).toList(),
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 16),
-
                       buildButton(
                         text: "Next",
                         onPressed: handleNext,
@@ -179,4 +215,7 @@ class _DietTypePageState extends State<DietTypePage> {
       ),
     );
   }
+
+  // @override
+  bool get wantKeepAlive => true;
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../constant/app_colors.dart';
 import '../../../constant/app_image.dart';
-import '../../../services/jsonService/local_service.dart';
-import '../../../services/model/allergen_model.dart';
+import '../../../services/api/api_services.dart';
+import '../../../services/model/onboarding/allergen_model.dart';
 import '../../../widget/build_button.dart';
 import '../../../widget/snackBar.dart';
 
@@ -17,30 +17,47 @@ class FoodAllergiesPage extends StatefulWidget {
   State<FoodAllergiesPage> createState() => _FoodAllergiesPageState();
 }
 
-class _FoodAllergiesPageState extends State<FoodAllergiesPage> {
+class _FoodAllergiesPageState extends State<FoodAllergiesPage>
+    with AutomaticKeepAliveClientMixin {
   bool isLoading = true;
   List<Allergen> allergens = [];
 
   @override
   void initState() {
     super.initState();
+    debugPrint('Init State call .............');
     loadAllergens();
   }
 
   Future<void> loadAllergens() async {
-    allergens = await LocalService.fetchLocalAllergens();
+    try {
+      final result = await ApiService.fetchAllergens();
 
-    // Use this fetching from API:
-    // allergens = await ApiService.fetchAllergens();
-
-    setState(() {
-      isLoading = false;
-    });
+      setState(() {
+        allergens = result;
+      });
+    } catch (e) {
+      showCustomSnackBar(
+        context,
+        message: "Failed to load allergy options",
+        icon: Icons.error_outline,
+        backgroundColor: Colors.red,
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
-  void handleNext() {
-    final selected = allergens.any((item) => item.isSelected);
-    if (!selected) {
+  void handleNext() async {
+    final selectedIds =
+        allergens
+            .where((item) => item.isSelected)
+            .map((item) => item.id)
+            .toList();
+
+    if (selectedIds.isEmpty) {
       showCustomSnackBar(
         context,
         message: "Please select at least one allergy",
@@ -50,11 +67,31 @@ class _FoodAllergiesPageState extends State<FoodAllergiesPage> {
       return;
     }
 
-    widget.onNext?.call();
+    try {
+      await ApiService.saveAllergens(selectedIds);
+
+      // showCustomSnackBar(
+      //   context,
+      //   message: "Allergies saved successfully!",
+      //   icon: Icons.check_circle_outline,
+      //   backgroundColor: Colors.green,
+      // );
+
+      widget.onNext?.call();
+    } catch (e) {
+      showCustomSnackBar(
+        context,
+        message: "Failed to save allergies",
+        icon: Icons.error_outline,
+        backgroundColor: Colors.red,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
@@ -70,7 +107,6 @@ class _FoodAllergiesPageState extends State<FoodAllergiesPage> {
                   : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header
                       Text(
                         "Choose Your Food Allergies",
                         style: TextStyle(
@@ -89,8 +125,6 @@ class _FoodAllergiesPageState extends State<FoodAllergiesPage> {
                         ),
                       ),
                       const SizedBox(height: 24),
-
-                      // Allergen List
                       Expanded(
                         child: ListView.builder(
                           itemCount: allergens.length,
@@ -126,7 +160,7 @@ class _FoodAllergiesPageState extends State<FoodAllergiesPage> {
                                   children: [
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
-                                      child: Image.asset(
+                                      child: Image.network(
                                         allergen.image,
                                         width: 45,
                                         height: 45,
@@ -145,13 +179,10 @@ class _FoodAllergiesPageState extends State<FoodAllergiesPage> {
                                     ),
                                     SvgPicture.asset(
                                       allergen.isSelected
-                                          ? Assets
-                                              .checkedSvg // e.g. orange check icon
+                                          ? Assets.checkedSvg
                                           : Assets.uncheckedSvg,
-                                      // e.g. outlined gray box
                                       width: 24,
                                       height: 24,
-                                      // REMOVE colorFilter to use SVG's default color
                                     ),
                                   ],
                                 ),
@@ -160,9 +191,7 @@ class _FoodAllergiesPageState extends State<FoodAllergiesPage> {
                           },
                         ),
                       ),
-
                       const SizedBox(height: 16),
-
                       buildButton(
                         text: "Next",
                         onPressed: handleNext,
@@ -175,4 +204,7 @@ class _FoodAllergiesPageState extends State<FoodAllergiesPage> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

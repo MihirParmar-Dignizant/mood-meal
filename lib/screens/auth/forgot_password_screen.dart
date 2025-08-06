@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mood_meal/constant/app_colors.dart';
+import 'package:mood_meal/services/authentication.dart';
 import 'package:mood_meal/widget/app_bar.dart';
 
 import '../../router/routes.dart';
@@ -83,14 +84,38 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       text: "Reset Password",
                       backgroundColor: AppColors.primary1000,
                       textColor: Colors.white,
-                      onPressed: () {
-                        bool isValid = formKey.currentState!.validate();
-                        if (isValid) {
-                          Navigator.pushNamed(
-                            context,
-                            Routes.checkMail,
-                            arguments: emailController.text,
-                          );
+                      onPressed: () async {
+                        final isValid = formKey.currentState!.validate();
+                        if (!isValid) return;
+
+                        final email = emailController.text.trim();
+
+                        // Show loading UI (optional)
+
+                        final success = await AuthService.sendForgotLink(email);
+
+                        // Remove the loading dialog
+                        // if (context.mounted) Navigator.pop(context);
+
+                        if (success) {
+                          if (context.mounted) {
+                            Navigator.pushNamed(
+                              context,
+                              Routes.checkMail,
+                              arguments: email,
+                            );
+                          }
+                        } else {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Failed to send reset link. Please try again.",
+                                ),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
                         }
                       },
                     ),

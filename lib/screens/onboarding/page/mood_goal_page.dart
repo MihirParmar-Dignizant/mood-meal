@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:mood_meal/constant/app_image.dart';
 
 import '../../../constant/app_colors.dart';
-import '../../../services/jsonService/local_service.dart';
-import '../../../services/model/emotion_model.dart';
+import '../../../services/api/api_services.dart';
+import '../../../services/model/onboarding/emotion_model.dart';
 import '../../../widget/build_button.dart';
 
 class MoodGoalPage extends StatefulWidget {
@@ -17,7 +15,7 @@ class MoodGoalPage extends StatefulWidget {
 }
 
 class _MoodGoalPageState extends State<MoodGoalPage> {
-  List<Emotion> emotions = [];
+  List<MoodGoal> emotions = [];
   int selectedIndex = 0;
   bool isLoading = true;
 
@@ -26,35 +24,34 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
   @override
   void initState() {
     super.initState();
-    // _loadEmotions();
-    fetchEmotionData();
-  }
-
-  fetchEmotionData() async {
-    // emotions = await ApiService.fetchEmotions();
-    debugPrint(emotions.toString());
+    _loadEmotions();
   }
 
   Future<void> _loadEmotions() async {
-    final loadedEmotions = await LocalService.fetchLocalEmotions();
+    try {
+      final loadedEmotions = await ApiService.fetchMoodGoals();
 
-    // For API
-    // final loadedEmotions = await LocalService.fetchEmotions();
+      setState(() {
+        emotions = loadedEmotions;
+        selectedIndex = loadedEmotions.indexWhere((e) => e.isSelected);
+        if (selectedIndex == -1) selectedIndex = 0;
+        isLoading = false;
+      });
 
-    setState(() {
-      emotions = loadedEmotions;
-      isLoading = false;
-    });
-
-    // Listen to page changes to update selectedIndex
-    _pageController.addListener(() {
-      final middleIndex = (_pageController.page ?? 0).round();
-      if (middleIndex != selectedIndex) {
-        setState(() {
-          selectedIndex = middleIndex;
-        });
-      }
-    });
+      _pageController.addListener(() {
+        final middleIndex = (_pageController.page ?? 0).round();
+        if (middleIndex != selectedIndex) {
+          setState(() {
+            selectedIndex = middleIndex;
+          });
+        }
+      });
+    } catch (e) {
+      debugPrint("Error loading emotions: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   void handleNext() {
@@ -67,6 +64,7 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
     super.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -81,7 +79,7 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
                     children: [
                       // Header
                       Text(
-                        "How Are You Feeling Today ?",
+                        "How Are You Feeling Today?",
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
@@ -90,7 +88,7 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        "Select allergens to customize your meals.",
+                        "Select a mood to customize your journey.",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -106,13 +104,14 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // Selected emotion large SVG
-                            SvgPicture.asset(
-                              emotions[selectedIndex].svgPath,
+                            // Large Emoji Image
+                            Image.network(
+                              emotions[selectedIndex].imageUrl,
                               height: 150,
                               width: 150,
+                              errorBuilder:
+                                  (_, __, ___) => const Icon(Icons.error),
                             ),
-
                             const SizedBox(height: 16),
 
                             // Name chip
@@ -144,7 +143,7 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
 
                       const Spacer(),
 
-                      // Scroller
+                      // Horizontal Scroll
                       SizedBox(
                         height: 85,
                         child: PageView.builder(
@@ -165,11 +164,7 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
 
                                 final distance = (index - currentPage).abs();
                                 final scale =
-                                    1.0 -
-                                    (distance * 0.5).clamp(
-                                      0.0,
-                                      0.5,
-                                    ); // Scale down max 50%
+                                    1.0 - (distance * 0.5).clamp(0.0, 0.5);
 
                                 return Center(
                                   child: Transform.scale(
@@ -178,17 +173,25 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 8,
                                       ),
-                                      child: SvgPicture.asset(
-                                        emotions[index].svgPath,
-                                        height: 70,
-                                        width: 70,
+                                      child: ColorFiltered(
                                         colorFilter:
                                             distance < 0.1
-                                                ? null
+                                                ? const ColorFilter.mode(
+                                                  Colors.transparent,
+                                                  BlendMode.multiply,
+                                                )
                                                 : const ColorFilter.mode(
                                                   Colors.grey,
-                                                  BlendMode.srcIn,
+                                                  BlendMode.saturation,
                                                 ),
+                                        child: Image.network(
+                                          emotions[index].imageUrl,
+                                          height: 70,
+                                          width: 70,
+                                          errorBuilder:
+                                              (_, __, ___) =>
+                                                  const Icon(Icons.error),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -198,8 +201,6 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
                           },
                         ),
                       ),
-
-                      SvgPicture.asset(Assets.waveSvg),
 
                       const SizedBox(height: 32),
 

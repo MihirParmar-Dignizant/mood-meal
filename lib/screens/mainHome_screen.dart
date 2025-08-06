@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mood_meal/constant/app_colors.dart';
 
 import '../router/routes.dart';
+import '../services/authentication.dart';
 
 class MainHomeScreen extends StatefulWidget {
   const MainHomeScreen({super.key});
@@ -29,6 +30,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
             ElevatedButton(
               onPressed: () async {
                 // await FirebaseAuth.instance.signOut();
+                await AuthService.signOut();
 
                 Navigator.pushNamedAndRemoveUntil(
                   context,

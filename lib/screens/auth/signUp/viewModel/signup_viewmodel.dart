@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mood_meal/services/api/api_services.dart';
+
+import '../../../../services/authentication.dart';
 
 class SignUpViewModel {
   final formKey = GlobalKey<FormState>();
@@ -10,7 +11,7 @@ class SignUpViewModel {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  final ApiService _authService = ApiService();
+  final AuthService _authService = AuthService();
 
   Future<String?> submitForm() async {
     if (!formKey.currentState!.validate()) {

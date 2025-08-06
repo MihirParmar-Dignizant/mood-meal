@@ -4,6 +4,7 @@ import 'package:mood_meal/constant/app_colors.dart';
 import 'package:mood_meal/router/routes.dart';
 import 'package:mood_meal/widget/app_bar.dart';
 
+import '../../../../services/authentication.dart';
 import '../../../../widget/build_button.dart';
 import '../../../../widget/or_divider.dart';
 import '../../../../widget/snackBar.dart';
@@ -40,7 +41,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       Navigator.pushNamedAndRemoveUntil(
         context,
-        Routes.mainHome,
+        Routes.dietary,
         (route) => false,
       );
     } else {
@@ -157,8 +158,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         text: "Continue With Google",
                         isGoogle: true,
                         backgroundColor: AppColors.primary100,
-                        onPressed: () {
-                          // TODO: Google Sign-In
+                        onPressed: () async {
+                          final response = await AuthService.signInWithGoogle();
+
+                          if (!context.mounted) return;
+                          if (response != null) {
+                            showCustomSnackBar(
+                              context,
+                              message: "Google Sign-In Successful!",
+                              icon: Icons.check_circle_outline,
+                              backgroundColor: AppColors.green,
+                            );
+
+                            await Future.delayed(
+                              const Duration(milliseconds: 800),
+                            );
+                            Navigator.pushReplacementNamed(
+                              context,
+                              Routes.dietary,
+                            );
+                          } else {
+                            showCustomSnackBar(
+                              context,
+                              message: "Google Sign-In failed.",
+                              icon: Icons.error_outline,
+                              backgroundColor: AppColors.red,
+                            );
+                          }
                         },
                       ),
 

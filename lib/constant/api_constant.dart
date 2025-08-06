@@ -25,4 +25,5 @@ class ApiConstant {
   static const String allergies = "/onboarding/allergies";
   static const String moodGoal = "/onboarding/mood-goal";
   static const String profileDetails = "/onboarding/profile-details";
+  static const String dietType = "/onboarding/dietType";
 }

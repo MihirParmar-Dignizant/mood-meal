@@ -27,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (isLoggedIn) {
       Navigator.pushNamedAndRemoveUntil(
         context,
-        Routes.mainHome,
+        Routes.dietary,
         (route) => false, // removes all previous routes
       );
     } else {
