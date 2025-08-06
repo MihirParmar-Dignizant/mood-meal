@@ -30,7 +30,6 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
   Future<void> _loadEmotions() async {
     try {
       final loadedEmotions = await ApiService.fetchMoodGoals();
-
       setState(() {
         emotions = loadedEmotions;
         selectedIndex = loadedEmotions.indexWhere((e) => e.isSelected);
@@ -55,6 +54,9 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
   }
 
   void handleNext() {
+    // You can pass the selected mood object to the next step here if needed
+    final selectedMood = emotions[selectedIndex];
+    debugPrint("Selected Mood: ${selectedMood.name}");
     widget.onNext?.call();
   }
 
@@ -73,11 +75,14 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
           padding: const EdgeInsets.all(20),
           child:
               isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primary1000,
+                    ),
+                  )
                   : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header
                       Text(
                         "How Are You Feeling Today?",
                         style: TextStyle(
@@ -96,25 +101,22 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
                         ),
                       ),
                       const SizedBox(height: 32),
-
                       const Spacer(),
 
+                      // Centered selected mood
                       Align(
                         alignment: Alignment.center,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // Large Emoji Image
                             Image.network(
-                              emotions[selectedIndex].imageUrl,
+                              emotions[selectedIndex].emoji,
                               height: 150,
                               width: 150,
                               errorBuilder:
                                   (_, __, ___) => const Icon(Icons.error),
                             ),
                             const SizedBox(height: 16),
-
-                            // Name chip
                             Container(
                               decoration: BoxDecoration(
                                 color: AppColors.primary100,
@@ -143,7 +145,7 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
 
                       const Spacer(),
 
-                      // Horizontal Scroll
+                      // Horizontal scroll mood list
                       SizedBox(
                         height: 85,
                         child: PageView.builder(
@@ -181,11 +183,11 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
                                                   BlendMode.multiply,
                                                 )
                                                 : const ColorFilter.mode(
-                                                  Colors.grey,
+                                                  Colors.transparent,
                                                   BlendMode.saturation,
                                                 ),
                                         child: Image.network(
-                                          emotions[index].imageUrl,
+                                          emotions[index].emoji,
                                           height: 70,
                                           width: 70,
                                           errorBuilder:
@@ -201,7 +203,6 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
                           },
                         ),
                       ),
-
                       const SizedBox(height: 32),
 
                       buildButton(

@@ -6,8 +6,10 @@ import 'package:mood_meal/constant/api_constant.dart';
 import 'package:mood_meal/services/model/onboarding/emotion_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../model/onboarding/activity_level.dart';
 import '../model/onboarding/allergen_model.dart';
 import '../model/onboarding/diet_model.dart';
+import '../model/onboarding/person_info.dart';
 
 class ApiService {
   // Diet type
@@ -158,39 +160,136 @@ class ApiService {
   }
 
   static Future<List<MoodGoal>> fetchMoodGoals() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('accessToken');
-
-    if (token == null || token.isEmpty) {
-      throw Exception('Token not found. Please sign in again.');
-    }
-
-    final url = Uri.parse('${ApiConstant.baseUrl}${ApiConstant.moodGoal}');
-
     try {
-      final response = await http.get(
-        url,
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('accessToken');
+
+      if (token == null || token.isEmpty) {
+        throw Exception('Access token not found. Please sign in again.');
+      }
+
+      final url = Uri.parse('${ApiConstant.baseUrl}${ApiConstant.moodGoal}');
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      };
+
+      final response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
         final data = decoded['data'];
-        final allMoods = data['allMoods'] as List;
-        final selectedMoodId = data['userMoods']?['_id'];
 
-        return allMoods
-            .map(
-              (moodJson) =>
-                  MoodGoal.fromJson(moodJson, selectedMoodId: selectedMoodId),
-            )
-            .toList();
+        final List<dynamic> allMoods = data['allMoods'] ?? [];
+        final String selectedMoodId =
+            data['userMoods']?['_id']?.toString() ?? '';
+
+        return allMoods.map((moodJson) {
+          return MoodGoal.fromJson(moodJson, selectedMoodId: selectedMoodId);
+        }).toList();
       } else {
-        throw Exception('Failed to fetch mood goals');
+        final errorMsg =
+            jsonDecode(response.body)['message'] ?? 'Unknown error';
+        throw Exception('Failed to fetch mood goals: $errorMsg');
       }
     } catch (e) {
       debugPrint('Error fetching mood goals: $e');
-      throw Exception('Failed to load mood goals');
+      throw Exception('Unable to load mood goals. Please try again.');
+    }
+  }
+
+  // Personal Info
+  static Future<PersonalInfoResponse> updatePersonalInfo({
+    required String gender,
+    required String age,
+    required String weight,
+    required String height,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('accessToken');
+
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not found');
+      }
+
+      final url = Uri.parse(
+        '${ApiConstant.baseUrl}${ApiConstant.profileDetails}',
+      );
+
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'gender': gender.toLowerCase(),
+          'age': age.trim(),
+          'weight': weight.replaceAll(RegExp(r'[^0-9]'), ''),
+          'height': height.replaceAll(RegExp(r'[^0-9]'), ''),
+        }),
+      );
+
+      debugPrint('response code: ${response.statusCode}');
+      debugPrint('response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return PersonalInfoResponse.fromJson(data);
+      } else {
+        final data = jsonDecode(response.body);
+        throw Exception(data['message'] ?? 'Failed to update info');
+      }
+    } catch (e) {
+      debugPrint("catch error: $e");
+      rethrow;
+    }
+  }
+
+  // Activity Level
+  static Future<List<ActivityLevel>> fetchActivityLevels() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+
+    final url = Uri.parse('${ApiConstant.baseUrl}${ApiConstant.activityLevel}');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List levels = data['data']['activityLevels'];
+      return levels.map((e) => ActivityLevel.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to load activity levels');
+    }
+  }
+
+  static Future<String> submitActivityLevel(String activityLevelId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+
+    final url = Uri.parse(
+      '${ApiConstant.baseUrl}${ApiConstant.addActivityLevel}/$activityLevelId',
+    );
+
+    final response = await http.put(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['message'] ?? 'Activity level updated successfully';
+    } else {
+      throw Exception('Failed to submit activity level');
     }
   }
 }

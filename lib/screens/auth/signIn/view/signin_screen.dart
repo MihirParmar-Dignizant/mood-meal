@@ -160,7 +160,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
                                   Navigator.pushReplacementNamed(
                                     context,
-                                    Routes.dietary,
+                                    Routes.mainHome,
                                   );
                                 } else {
                                   showCustomSnackBar(
@@ -171,67 +171,6 @@ class _SignInScreenState extends State<SignInScreen> {
                                   );
                                 }
                               },
-
-                              // onPressed: () async {
-                              // Navigator.pushNamed(context, Routes.dietary);
-
-                              // if (!formKey.currentState!.validate()) {
-                              //   showCustomSnackBar(
-                              //     context,
-                              //     message:
-                              //         "Please fill all fields correctly.",
-                              //     icon: Icons.warning_amber_outlined,
-                              //     backgroundColor: AppColors.red,
-                              //   );
-                              //   return;
-                              // }
-                              //
-                              // formKey.currentState!.save();
-                              //
-                              // try {
-                              //   final error = await authService.login(
-                              //     email: emailController.text.trim(),
-                              //     password: passwordController.text.trim(),
-                              //   );
-                              //
-                              //   if (!context.mounted) return;
-                              //
-                              //   if (error == null) {
-                              //     showCustomSnackBar(
-                              //       context,
-                              //       message: "Login Successful!",
-                              //       icon: Icons.check_circle_outline,
-                              //       backgroundColor: AppColors.green,
-                              //     );
-                              //
-                              //     await Future.delayed(
-                              //       const Duration(milliseconds: 800),
-                              //     );
-                              //
-                              //     Navigator.pushReplacementNamed(
-                              //       context,
-                              //       Routes.mainHome,
-                              //     );
-                              //   } else {
-                              //     showCustomSnackBar(
-                              //       context,
-                              //       message: error,
-                              //       icon: Icons.error_outline,
-                              //       backgroundColor: AppColors.red,
-                              //     );
-                              //   }
-                              // } catch (e) {
-                              //   if (!context.mounted) return;
-                              //
-                              //   showCustomSnackBar(
-                              //     context,
-                              //     message:
-                              //         "Unexpected error occurred. Please try again.",
-                              //     icon: Icons.error_outline,
-                              //     backgroundColor: Colors.red.shade700,
-                              //   );
-                              // }
-                              // },
                             ),
                           ],
                         ),

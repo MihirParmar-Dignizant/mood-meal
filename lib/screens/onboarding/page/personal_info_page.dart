@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../constant/app_colors.dart';
+import '../../../services/api/api_services.dart';
 import '../../../widget/build_button.dart';
 import '../../../widget/picker_bottomSheet.dart';
 import '../../../widget/snackBar.dart';
@@ -23,14 +24,16 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   final weightController = TextEditingController();
   final heightController = TextEditingController();
 
-  void handleNext() {
+  bool isLoading = false;
+
+  void handleNext() async {
     final isValid = formKey.currentState?.validate() ?? false;
 
     if (!isValid ||
-        genderController.text.isEmpty ||
-        ageController.text.isEmpty ||
-        weightController.text.isEmpty ||
-        heightController.text.isEmpty) {
+        genderController.text.trim().isEmpty ||
+        ageController.text.trim().isEmpty ||
+        weightController.text.trim().isEmpty ||
+        heightController.text.trim().isEmpty) {
       showCustomSnackBar(
         context,
         message: "Please complete all required fields correctly.",
@@ -40,7 +43,65 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       return;
     }
 
-    widget.onNext?.call();
+    final trimmedAge = ageController.text.trim();
+    final age = int.tryParse(trimmedAge);
+
+    if (age == null) {
+      showCustomSnackBar(
+        context,
+        message: "Please enter a valid age.",
+        icon: Icons.error_outline,
+        backgroundColor: AppColors.primary1000,
+      );
+      return;
+    }
+
+    String gender = genderController.text.trim();
+    String weight = weightController.text.trim();
+    String height = heightController.text.trim();
+
+    // Convert height from ft/in to cm if needed
+    if (height.contains("ft")) {
+      try {
+        final parts = height.split(" ");
+        final feet = int.parse(parts[0]);
+        final inches = int.parse(parts[2]);
+        final totalCm = (feet * 30.48 + inches * 2.54).round();
+        height = "$totalCm cm";
+      } catch (_) {
+        showCustomSnackBar(
+          context,
+          message: "Invalid height format.",
+          icon: Icons.error_outline,
+          backgroundColor: AppColors.primary1000,
+        );
+        return;
+      }
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      final response = await ApiService.updatePersonalInfo(
+        gender: gender,
+        age: trimmedAge,
+        weight: weight,
+        height: height,
+      );
+
+      debugPrint("Profile updated for user ID: ${response.user.id}");
+
+      widget.onNext?.call();
+    } catch (e) {
+      showCustomSnackBar(
+        context,
+        message: e.toString(),
+        icon: Icons.error_outline,
+        backgroundColor: AppColors.primary1000,
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
 
   @override
@@ -75,7 +136,6 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
               Expanded(
                 child: SingleChildScrollView(
-                  // padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Form(
                     key: formKey,
                     child: Column(
@@ -159,10 +219,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 ),
               ),
 
-              // Bottom button
               buildButton(
-                text: "Next",
-                onPressed: handleNext,
+                text: isLoading ? "Saving..." : "Next",
+                onPressed: isLoading ? null : handleNext,
                 backgroundColor: AppColors.primary1000,
                 textColor: Colors.white,
               ),

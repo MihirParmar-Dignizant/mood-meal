@@ -1,15 +1,13 @@
 class MoodGoal {
   final String id;
   final String name;
-  final String emoji;
-  final String imageUrl;
+  final String emoji; // actual image URL
   bool isSelected;
 
   MoodGoal({
     required this.id,
     required this.name,
     required this.emoji,
-    required this.imageUrl,
     this.isSelected = false,
   });
 
@@ -17,12 +15,15 @@ class MoodGoal {
     Map<String, dynamic> json, {
     String? selectedMoodId,
   }) {
+    final String id = json['_id']?.toString() ?? '';
+    final String name = json['name']?.toString() ?? '';
+    final String emoji = json['emoji']?.toString() ?? '';
+
     return MoodGoal(
-      id: json['_id'],
-      name: json['name'],
-      emoji: json['emoji'],
-      imageUrl: json['image'],
-      isSelected: selectedMoodId != null && json['_id'] == selectedMoodId,
+      id: id,
+      name: name,
+      emoji: emoji,
+      isSelected: selectedMoodId != null && id == selectedMoodId,
     );
   }
 }

@@ -37,7 +37,7 @@ class _DietaryPrefScreenState extends State<DietaryPrefScreen> {
       FoodAllergiesPage(onNext: nextPage),
       MoodGoalPage(onNext: nextPage),
       PersonalInfoPage(onNext: nextPage),
-      PersonalInfoActivityPage(onNext: nextPage),
+      PersonalInfoActivityPage(),
     ];
 
     _pageController.addListener(() {

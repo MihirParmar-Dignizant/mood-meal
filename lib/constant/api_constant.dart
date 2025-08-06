@@ -22,6 +22,7 @@ class ApiConstant {
 
   // Onboarding screen
   static const String activityLevel = "/onboarding/activity-level";
+  static const String addActivityLevel = "/onboarding/activity-level";
   static const String allergies = "/onboarding/allergies";
   static const String moodGoal = "/onboarding/mood-goal";
   static const String profileDetails = "/onboarding/profile-details";
