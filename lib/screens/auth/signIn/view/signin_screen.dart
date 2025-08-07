@@ -28,232 +28,214 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primary100,
+      resizeToAvoidBottomInset: false,
       appBar: const CustomTopAppBar(isImage: true, label: ""),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: IntrinsicHeight(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 30),
-
-                    // Card with form
-                    Form(
-                      key: formKey,
-                      child: Container(
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withAlpha(30),
-                              blurRadius: 12,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Center(
-                              child: Column(
-                                children: [
-                                  Text(
-                                    "Welcome Back !",
-                                    style: TextStyle(
-                                      fontSize: 20.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.secondary1000,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    "Sign in to continue",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w400,
-                                      color: AppColors.secondary600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
-                                ],
-                              ),
-                            ),
-                            CustomTextField(
-                              label: 'Email Address',
-                              hint: 'Enter your email address',
-                              controller: emailController,
-                            ),
-                            const SizedBox(height: 10),
-                            CustomTextField(
-                              label: 'Password',
-                              hint: 'Enter your password',
-                              isPassword: true,
-                              controller: passwordController,
-                            ),
-                            const SizedBox(height: 10),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: GestureDetector(
-                                onTap:
-                                    () => Navigator.pushNamed(
-                                      context,
-                                      Routes.forgotPassword,
-                                    ),
-                                child: Text(
-                                  "Forgot Password?",
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 30),
+                  Form(
+                    key: formKey,
+                    child: Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(30),
+                            blurRadius: 12,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Column(
+                              children: [
+                                Text(
+                                  "Welcome Back !",
                                   style: TextStyle(
-                                    fontSize: 14.sp,
-                                    color: AppColors.primary1000,
-                                    fontWeight: FontWeight.w400,
+                                    fontSize: 20.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.secondary1000,
                                   ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "Sign in to continue",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.secondary600,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                          CustomTextField(
+                            label: 'Email Address',
+                            hint: 'Enter your email address',
+                            controller: emailController,
+                          ),
+                          const SizedBox(height: 10),
+                          CustomTextField(
+                            label: 'Password',
+                            hint: 'Enter your password',
+                            isPassword: true,
+                            controller: passwordController,
+                          ),
+                          const SizedBox(height: 10),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: GestureDetector(
+                              onTap:
+                                  () => Navigator.pushNamed(
+                                    context,
+                                    Routes.forgotPassword,
+                                  ),
+                              child: Text(
+                                "Forgot Password?",
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: AppColors.primary1000,
+                                  fontWeight: FontWeight.w400,
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 24),
-                            buildButton(
-                              text: "Sign In",
-                              backgroundColor: AppColors.primary1000,
-                              textColor: Colors.white,
+                          ),
+                          const SizedBox(height: 24),
+                          buildButton(
+                            text: "Sign In",
+                            backgroundColor: AppColors.primary1000,
+                            textColor: Colors.white,
+                            onPressed: () async {
+                              if (!formKey.currentState!.validate()) {
+                                showCustomSnackBar(
+                                  context,
+                                  message: "Please fill all fields correctly.",
+                                  icon: Icons.warning_amber_outlined,
+                                  backgroundColor: AppColors.red,
+                                );
+                                return;
+                              }
 
-                              onPressed: () async {
-                                if (!formKey.currentState!.validate()) {
-                                  showCustomSnackBar(
-                                    context,
-                                    message:
-                                        "Please fill all fields correctly.",
-                                    icon: Icons.warning_amber_outlined,
-                                    backgroundColor: AppColors.red,
-                                  );
-                                  return;
-                                }
+                              final email = emailController.text.trim();
+                              final password = passwordController.text.trim();
 
-                                final email = emailController.text.trim();
-                                final password = passwordController.text.trim();
+                              final response = await AuthService.signIn(
+                                email: email,
+                                password: password,
+                              );
 
-                                final response = await AuthService.signIn(
-                                  email: email,
-                                  password: password,
+                              if (!context.mounted) return;
+
+                              if (response != null) {
+                                showCustomSnackBar(
+                                  context,
+                                  message: "Login Successful!",
+                                  icon: Icons.check_circle_outline,
+                                  backgroundColor: AppColors.green,
                                 );
 
-                                if (!context.mounted) return;
+                                await Future.delayed(
+                                  const Duration(milliseconds: 800),
+                                );
 
-                                if (response != null) {
-                                  // Save token locally using shared_preferences or secure_storage if needed
-                                  // await storage.write(key: "token", value: response.token);
-
-                                  showCustomSnackBar(
-                                    context,
-                                    message: "Login Successful!",
-                                    icon: Icons.check_circle_outline,
-                                    backgroundColor: AppColors.green,
-                                  );
-
-                                  await Future.delayed(
-                                    const Duration(milliseconds: 800),
-                                  );
-
-                                  Navigator.pushReplacementNamed(
-                                    context,
-                                    Routes.mainHome,
-                                  );
-                                } else {
-                                  showCustomSnackBar(
-                                    context,
-                                    message: "Invalid email or password.",
-                                    icon: Icons.error_outline,
-                                    backgroundColor: AppColors.red,
-                                  );
-                                }
-                              },
-                            ),
-                          ],
-                        ),
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  Routes.dietary,
+                                );
+                              } else {
+                                showCustomSnackBar(
+                                  context,
+                                  message: "Invalid email or password.",
+                                  icon: Icons.error_outline,
+                                  backgroundColor: AppColors.red,
+                                );
+                              }
+                            },
+                          ),
+                        ],
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 24),
+                  const OrDivider(text: "Or sign in with"),
+                  const SizedBox(height: 16),
+                  buildButton(
+                    text: "Continue With Google",
+                    isGoogle: true,
+                    backgroundColor: AppColors.primary100,
+                    onPressed: () async {
+                      final response = await AuthService.signInWithGoogle();
 
-                    const SizedBox(height: 24),
-                    const OrDivider(text: "Or sign in with"),
-                    const SizedBox(height: 16),
+                      if (!context.mounted) return;
+                      if (response != null) {
+                        showCustomSnackBar(
+                          context,
+                          message: "Google Sign-In Successful!",
+                          icon: Icons.check_circle_outline,
+                          backgroundColor: AppColors.green,
+                        );
 
-                    // ✅ Google Sign-In Button
-                    buildButton(
-                      text: "Continue With Google",
-                      isGoogle: true,
-                      backgroundColor: AppColors.primary100,
-                      onPressed: () async {
-                        final response = await AuthService.signInWithGoogle();
-
-                        if (!context.mounted) return;
-                        if (response != null) {
-                          showCustomSnackBar(
-                            context,
-                            message: "Google Sign-In Successful!",
-                            icon: Icons.check_circle_outline,
-                            backgroundColor: AppColors.green,
-                          );
-
-                          await Future.delayed(
-                            const Duration(milliseconds: 800),
-                          );
-                          Navigator.pushReplacementNamed(
-                            context,
-                            Routes.mainHome,
-                          );
-                        } else {
-                          showCustomSnackBar(
-                            context,
-                            message: "Google Sign-In failed.",
-                            icon: Icons.error_outline,
-                            backgroundColor: AppColors.red,
-                          );
-                        }
-                      },
-                    ),
-
-                    const Spacer(),
-                    const SizedBox(height: 20),
-
-                    // Sign Up Footer
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Don’t have an account ? ",
-                          style: TextStyle(
-                            color: AppColors.secondary400,
-                            fontSize: 14,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap:
-                              () => Navigator.pushNamed(context, Routes.signUp),
-                          child: Text(
-                            "Sign Up",
-                            style: TextStyle(
-                              color: AppColors.primary1000,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              decoration: TextDecoration.underline,
-                              decorationColor: AppColors.primary1000,
-                              decorationThickness: 1.5,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 30),
-                  ],
-                ),
+                        await Future.delayed(const Duration(milliseconds: 800));
+                        Navigator.pushReplacementNamed(
+                          context,
+                          Routes.mainHome,
+                        );
+                      } else {
+                        showCustomSnackBar(
+                          context,
+                          message: "Google Sign-In failed.",
+                          icon: Icons.error_outline,
+                          backgroundColor: AppColors.red,
+                        );
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
-          );
-        },
+          ),
+
+          // Fixed Footer
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Don’t have an account ? ",
+                  style: TextStyle(color: AppColors.secondary400, fontSize: 14),
+                ),
+                GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, Routes.signUp),
+                  child: Text(
+                    "Sign Up",
+                    style: TextStyle(
+                      color: AppColors.primary1000,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColors.primary1000,
+                      decorationThickness: 1.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

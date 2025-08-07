@@ -15,12 +15,11 @@ class AuthService {
     return Uri.parse("${ApiConstant.baseUrl}$endpoint");
   }
 
-  // Signs up the user using provided data.
-  // Returns `null` if successful, otherwise returns an error message.
   Future<String?> signUp(Map<String, String> data) async {
     try {
-      final uri = _buildUrl(ApiConstant.signUp);
+      final uri = Uri.parse('${ApiConstant.baseUrl}${ApiConstant.signUp}');
 
+      debugPrint('${ApiConstant.baseUrl}${ApiConstant.signUp}');
       final response = await http.post(
         uri,
         headers: {'Content-Type': 'application/json'},
@@ -30,8 +29,21 @@ class AuthService {
       final Map<String, dynamic> responseBody = json.decode(response.body);
 
       if (response.statusCode == 201 && responseBody["success"] == true) {
-        // TODO: Save tokens or user info if needed
-        return null;
+        final token = responseBody["data"]["token"];
+        final refreshToken = responseBody["data"]["refreshToken"];
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('accessToken', token);
+        await prefs.setString('refreshToken', refreshToken);
+        await prefs.setBool('isLoggedIn', true);
+
+        // You can also store user info if needed:
+        final user = responseBody["data"]["user"];
+        await prefs.setString('userId', user["_id"]);
+        await prefs.setString('userEmail', user["userEmail"]);
+        await prefs.setString('userName', user["userName"]);
+
+        return null; // Success
       } else {
         return responseBody['message'] ?? "Unknown error occurred";
       }
@@ -56,12 +68,27 @@ class AuthService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
 
+        // SAFELY get nested data
+        final Map<String, dynamic>? dataField = data['data'];
+        if (dataField == null) {
+          debugPrint("No 'data' field found in response.");
+          return null;
+        }
+
+        final token = dataField['token'] as String?;
+        final refreshToken = dataField['refreshToken'] as String?;
+
+        if (token == null || refreshToken == null) {
+          debugPrint("Token or refreshToken is missing.");
+          return null;
+        }
+
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('accessToken', data['data']['token']);
+        await prefs.setString('accessToken', token);
+        await prefs.setString('refreshToken', refreshToken);
         await prefs.setBool('isLoggedIn', true);
 
-        String authToken = prefs.getString('accessToken') ?? '';
-        debugPrint('AuthToken:   $authToken');
+        debugPrint('AuthToken: $token');
 
         return SignInResponse.fromJson(data);
       } else {

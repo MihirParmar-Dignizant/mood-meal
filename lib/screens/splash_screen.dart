@@ -27,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (isLoggedIn) {
       Navigator.pushNamedAndRemoveUntil(
         context,
-        Routes.dietary,
+        Routes.mainHome,
         (route) => false, // removes all previous routes
       );
     } else {
@@ -41,8 +41,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final height = MediaQuery.of(context).size.height;
-
     return Scaffold(
       backgroundColor: AppColors.primary100,
       body: Padding(

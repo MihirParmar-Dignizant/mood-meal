@@ -85,17 +85,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       backgroundColor: AppColors.primary1000,
                       textColor: Colors.white,
                       onPressed: () async {
+                        Navigator.pushNamed(
+                          context,
+                          Routes.checkMail,
+                          // arguments: email,
+                        );
+
                         final isValid = formKey.currentState!.validate();
                         if (!isValid) return;
 
                         final email = emailController.text.trim();
 
-                        // Show loading UI (optional)
-
                         final success = await AuthService.sendForgotLink(email);
-
-                        // Remove the loading dialog
-                        // if (context.mounted) Navigator.pop(context);
 
                         if (success) {
                           if (context.mounted) {

@@ -62,6 +62,11 @@ class ApiService {
 
     final url = Uri.parse('${ApiConstant.baseUrl}${ApiConstant.dietType}');
 
+    //https://mood-meal-backend.onrender.com/api/v1/onboarding/dietType
+
+    debugPrint('api name :  ${ApiConstant.baseUrl}${ApiConstant.dietType}');
+    debugPrint('token :  $token');
+
     try {
       final response = await http.put(
         url,
