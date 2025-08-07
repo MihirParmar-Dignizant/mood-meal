@@ -30,6 +30,8 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
   Future<void> _loadEmotions() async {
     try {
       final loadedEmotions = await ApiService.fetchMoodGoals();
+
+      debugPrint('Loaded moods: ${loadedEmotions.length}');
       setState(() {
         emotions = loadedEmotions;
         selectedIndex = loadedEmotions.indexWhere((e) => e.isSelected);
@@ -39,7 +41,7 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
 
       _pageController.addListener(() {
         final middleIndex = (_pageController.page ?? 0).round();
-        if (middleIndex != selectedIndex) {
+        if (middleIndex != selectedIndex && middleIndex < emotions.length) {
           setState(() {
             selectedIndex = middleIndex;
           });
@@ -53,11 +55,18 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
     }
   }
 
-  void handleNext() {
-    // You can pass the selected mood object to the next step here if needed
+  void handleNext() async {
+    if (emotions.isEmpty) return;
+
     final selectedMood = emotions[selectedIndex];
-    debugPrint("Selected Mood: ${selectedMood.name}");
-    widget.onNext?.call();
+    try {
+      await ApiService.updateMoodGoal(selectedMood.id);
+      widget.onNext?.call();
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to update mood: $e')));
+    }
   }
 
   @override
@@ -78,6 +87,13 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
                   ? const Center(
                     child: CircularProgressIndicator(
                       color: AppColors.primary1000,
+                    ),
+                  )
+                  : emotions.isEmpty
+                  ? const Center(
+                    child: Text(
+                      'No moods available right now.',
+                      style: TextStyle(fontSize: 16),
                     ),
                   )
                   : Column(
@@ -103,7 +119,7 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
                       const SizedBox(height: 32),
                       const Spacer(),
 
-                      // Centered selected mood
+                      // Selected mood preview
                       Align(
                         alignment: Alignment.center,
                         child: Column(
@@ -145,7 +161,7 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
 
                       const Spacer(),
 
-                      // Horizontal scroll mood list
+                      // Mood selector
                       SizedBox(
                         height: 85,
                         child: PageView.builder(
@@ -157,7 +173,6 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
                               animation: _pageController,
                               builder: (context, child) {
                                 double currentPage = 0;
-
                                 if (_pageController.hasClients) {
                                   currentPage =
                                       _pageController.page ??
@@ -203,6 +218,7 @@ class _MoodGoalPageState extends State<MoodGoalPage> {
                           },
                         ),
                       ),
+
                       const SizedBox(height: 32),
 
                       buildButton(

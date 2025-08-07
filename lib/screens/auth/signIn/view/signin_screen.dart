@@ -128,7 +128,10 @@ class _SignInScreenState extends State<SignInScreen> {
                                 return;
                               }
 
-                              final email = emailController.text.trim();
+                              final email =
+                                  emailController.text
+                                      .trim()
+                                      .toLowerCase(); // normalize
                               final password = passwordController.text.trim();
 
                               final response = await AuthService.signIn(
@@ -137,6 +140,8 @@ class _SignInScreenState extends State<SignInScreen> {
                               );
 
                               if (!context.mounted) return;
+
+                              debugPrint("response: $response");
 
                               if (response != null) {
                                 showCustomSnackBar(
@@ -150,10 +155,17 @@ class _SignInScreenState extends State<SignInScreen> {
                                   const Duration(milliseconds: 800),
                                 );
 
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  Routes.dietary,
-                                );
+                                if (response.user.onboardingCompleted) {
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    Routes.mainHome,
+                                  ); // main screen
+                                } else {
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    Routes.dietary,
+                                  ); // onboarding screen
+                                }
                               } else {
                                 showCustomSnackBar(
                                   context,

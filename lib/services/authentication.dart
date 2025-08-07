@@ -6,51 +6,81 @@ import 'package:http/http.dart' as http;
 import 'package:mood_meal/constant/api_constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../screens/auth/signUp/model/signup_user_model.dart';
 import 'model/auth/signIn_model.dart';
 
 class AuthService {
   static final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
-  Uri _buildUrl(String endpoint) {
-    return Uri.parse("${ApiConstant.baseUrl}$endpoint");
-  }
+  Uri _buildUrl(String endpoint) =>
+      Uri.parse("${ApiConstant.baseUrl}$endpoint");
 
-  Future<String?> signUp(Map<String, String> data) async {
+  Future<SignUpResponse?> signUp(Map<String, String> data) async {
+    final uri = _buildUrl(ApiConstant.signUp);
+
     try {
-      final uri = Uri.parse('${ApiConstant.baseUrl}${ApiConstant.signUp}');
-
-      debugPrint('${ApiConstant.baseUrl}${ApiConstant.signUp}');
       final response = await http.post(
         uri,
         headers: {'Content-Type': 'application/json'},
-        body: json.encode(data),
+        body: jsonEncode(data),
       );
 
-      final Map<String, dynamic> responseBody = json.decode(response.body);
+      final responseBody = jsonDecode(response.body);
 
       if (response.statusCode == 201 && responseBody["success"] == true) {
-        final token = responseBody["data"]["token"];
-        final refreshToken = responseBody["data"]["refreshToken"];
+        final dataField = responseBody["data"];
+        if (dataField == null ||
+            dataField["token"] == null ||
+            dataField["refreshToken"] == null ||
+            dataField["user"] == null) {
+          debugPrint("Incomplete sign-up response.");
+          return null;
+        }
 
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('accessToken', token);
-        await prefs.setString('refreshToken', refreshToken);
-        await prefs.setBool('isLoggedIn', true);
-
-        // You can also store user info if needed:
-        final user = responseBody["data"]["user"];
-        await prefs.setString('userId', user["_id"]);
-        await prefs.setString('userEmail', user["userEmail"]);
-        await prefs.setString('userName', user["userName"]);
-
-        return null; // Success
-      } else {
-        return responseBody['message'] ?? "Unknown error occurred";
+        return SignUpResponse.fromJson(responseBody);
       }
+
+      debugPrint('Sign-Up Failed: ${response.body}');
+      return null;
     } catch (e) {
-      return "An error occurred: $e";
+      debugPrint('Sign-Up Error: $e');
+      return null;
     }
   }
+
+  // Future<SignUpResponse?> signUp(Map<String, String> data) async {
+  //   final uri = _buildUrl(ApiConstant.signUp);
+  //
+  //   try {
+  //     final response = await http.post(
+  //       uri,
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode(data),
+  //     );
+  //
+  //     final responseBody = jsonDecode(response.body);
+  //
+  //     if (response.statusCode == 201 && responseBody["success"] == true) {
+  //       final dataField = responseBody["data"];
+  //       if (dataField == null ||
+  //           dataField["token"] == null ||
+  //           dataField["refreshToken"] == null ||
+  //           dataField["user"] == null) {
+  //         debugPrint("Incomplete sign-up response.");
+  //         return null;
+  //       }
+  //
+  //       await _saveUserSession(dataField);
+  //       return SignUpResponse.fromJson(responseBody);
+  //     }
+  //
+  //     debugPrint('Sign-Up Failed: ${response.body}');
+  //     return null;
+  //   } catch (e) {
+  //     debugPrint('Sign-Up Error: $e');
+  //     return null;
+  //   }
+  // }
 
   static Future<SignInResponse?> signIn({
     required String email,
@@ -62,13 +92,18 @@ class AuthService {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'userEmail': email, 'password': password}),
+        body: jsonEncode({
+          'userEmail': email.toLowerCase().trim(), // normalized
+          'password': password.trim(),
+        }),
       );
+
+      print("STATUS: ${response.statusCode}");
+      print("BODY: ${response.body}");
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
 
-        // SAFELY get nested data
         final Map<String, dynamic>? dataField = data['data'];
         if (dataField == null) {
           debugPrint("No 'data' field found in response.");
@@ -92,7 +127,8 @@ class AuthService {
 
         return SignInResponse.fromJson(data);
       } else {
-        print("Sign-In failed: ${response.body}");
+        final error = jsonDecode(response.body);
+        print("Sign-In failed: ${error['message'] ?? 'Unknown error'}");
         return null;
       }
     } catch (e) {
@@ -104,15 +140,12 @@ class AuthService {
   static Future<SignInResponse?> signInWithGoogle() async {
     try {
       final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        print('Google Sign-In canceled');
-        return null;
-      }
-      final googleAuth = await googleUser.authentication;
+      if (googleUser == null) return null;
 
+      final googleAuth = await googleUser.authentication;
       final idToken = googleAuth.idToken;
       if (idToken == null) {
-        print("Failed to retrieve Token");
+        debugPrint("Google Sign-In token missing.");
         return null;
       }
 
@@ -122,31 +155,23 @@ class AuthService {
         body: jsonEncode({'idToken': idToken}),
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+      final body = jsonDecode(response.body);
+      if (response.statusCode == 200 && body['success'] == true) {
+        final data = body['data'];
+        if (data == null || data['token'] == null || data['user'] == null) {
+          debugPrint("Incomplete Google Sign-In response.");
+          return null;
+        }
+
+        await _saveUserSession(data);
         return SignInResponse.fromJson(data);
-      } else {
-        print("Google Auth Api failed: ${response.body}");
-        return null;
       }
-    } catch (e) {
-      print("Google Sign-In error: $e");
+
+      debugPrint("Google Sign-In failed: ${response.body}");
       return null;
-    }
-  }
-
-  static Future<void> signOut() async {
-    try {
-      final isGoogleSignedIn = await _googleSignIn.isSignedIn();
-      if (isGoogleSignedIn) {
-        await _googleSignIn.signOut();
-        print("Google user Signed Out");
-      }
-
-      await _clearLocalSession();
-      print("Local session cleared (email/password).");
     } catch (e) {
-      print("Error during sign-out: $e");
+      debugPrint("Google Sign-In Error: $e");
+      return null;
     }
   }
 
@@ -161,21 +186,50 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        print("Forgot Link send successfully.");
         return true;
       } else {
-        print('Failed to send reset link: ${response.body}');
+        debugPrint('Reset link failed: ${response.body}');
         return false;
       }
     } catch (e) {
-      print("Error sending to forgot password link: $e");
+      debugPrint("Forgot Password Error: $e");
       return false;
+    }
+  }
+
+  static Future<void> signOut() async {
+    try {
+      if (await _googleSignIn.isSignedIn()) {
+        await _googleSignIn.signOut();
+      }
+
+      await _clearLocalSession();
+    } catch (e) {
+      debugPrint("Sign-Out Error: $e");
+    }
+  }
+
+  static Future<void> _saveUserSession(Map<String, dynamic> data) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final token = data['token'];
+    final refreshToken = data['refreshToken'];
+    final user = data['user'];
+
+    await prefs.setString('accessToken', token);
+    await prefs.setString('refreshToken', refreshToken);
+    await prefs.setBool('isLoggedIn', true);
+
+    if (user is Map<String, dynamic>) {
+      await prefs.setString('userId', user['_id'] ?? '');
+      await prefs.setString('userName', user['userName'] ?? '');
+      await prefs.setString('userEmail', user['userEmail'] ?? '');
     }
   }
 
   static Future<void> _clearLocalSession() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // or use prefs.remove('key') if selective
+    await prefs.clear();
   }
 
   // final FirebaseAuth _auth = FirebaseAuth.instance;

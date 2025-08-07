@@ -1,25 +1,28 @@
-class SignUpUserModel {
-  final String firstName;
-  final String lastName;
-  final String userName;
-  final String userEmail;
-  final String password;
+import '../../../../services/model/auth/user_model.dart';
 
-  SignUpUserModel({
-    required this.firstName,
-    required this.lastName,
-    required this.userName,
-    required this.userEmail,
-    required this.password,
+class SignUpResponse {
+  final bool success;
+  final String message;
+  final String token;
+  final String refreshToken;
+  final User user;
+
+  SignUpResponse({
+    required this.success,
+    required this.message,
+    required this.token,
+    required this.refreshToken,
+    required this.user,
   });
 
-  Map<String, String> toMap() {
-    return {
-      "firstName": firstName,
-      "lastName": lastName,
-      "userName": userName,
-      "userEmail": userEmail,
-      "password": password,
-    };
+  factory SignUpResponse.fromJson(Map<String, dynamic> json) {
+    final data = json['data'];
+    return SignUpResponse(
+      success: json['success'],
+      message: json['message'],
+      token: data['token'],
+      refreshToken: data['refreshToken'],
+      user: User.fromJson(data['user']),
+    );
   }
 }

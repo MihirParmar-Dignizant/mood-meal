@@ -20,28 +20,27 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final SignUpViewModel viewModel = SignUpViewModel();
-  bool _isLoading = false;
+
+  // bool _isLoading = false;
 
   void handleSignUp() async {
-    setState(() => _isLoading = true);
-
     final result = await viewModel.submitForm();
 
     if (!mounted) return;
 
-    setState(() => _isLoading = false);
-
     if (result == null) {
       showCustomSnackBar(
         context,
-        message: "Sign up successful!",
+        message: "Sign up successful! Please sign in.",
         icon: Icons.check_circle_outline,
         backgroundColor: Colors.green,
       );
 
+      await Future.delayed(const Duration(milliseconds: 800));
+
       Navigator.pushNamedAndRemoveUntil(
         context,
-        Routes.dietary,
+        Routes.signIn,
         (route) => false,
       );
     } else {
@@ -132,14 +131,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    _isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : buildButton(
-                          text: "Sign Up",
-                          backgroundColor: AppColors.primary1000,
-                          textColor: Colors.white,
-                          onPressed: handleSignUp,
-                        ),
+                    // _isLoading
+                    //     ? const Center(child: CircularProgressIndicator())
+                    //     :
+                    buildButton(
+                      text: "Sign Up",
+                      backgroundColor: AppColors.primary1000,
+                      textColor: Colors.white,
+                      onPressed: handleSignUp,
+                    ),
                   ],
                 ),
               ),

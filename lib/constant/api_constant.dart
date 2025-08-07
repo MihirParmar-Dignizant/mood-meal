@@ -10,6 +10,8 @@ class ApiConstant {
   // Base URl
   static const String baseUrl = "https://mood-meal-backend.onrender.com/api/v1";
 
+  // static const String baseUrl = "https://api.moodimeal.com/api/v1";
+
   // Authentication
   static const signUp = "/auth/signup";
   static const signIn = "/auth/signin";

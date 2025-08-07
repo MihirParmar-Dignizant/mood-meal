@@ -28,6 +28,14 @@ class SignUpViewModel {
       "password": passwordController.text.trim(),
     };
 
-    return await _authService.signUp(formData);
+    final response = await _authService.signUp(formData);
+
+    if (response != null) {
+      // SignUp success
+      return null;
+    } else {
+      // SignUp failed – could return custom message if needed
+      return "Sign-up failed. Please try again.";
+    }
   }
 }
